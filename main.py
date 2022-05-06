@@ -4,18 +4,21 @@ Iran wins:1 , loses:1 , draws:1 , goal difference:0 , points:4
 Portugal wins:1 , loses:1 , draws:1 , goal difference:0 , points:4
 Morocco wins:1 , loses:2 , draws:0 , goal difference:-2 , points:3
 """
-from typing import List, Any
+from pprint import pprint
 
 
 class League:
 
-    def __init__(self, team_league: dict):
+    def __init__(self):
         self.team_league = {
             'spain': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
             'iran': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
             'portugal': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
             'morocco': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
         }
+        self.matches_list = []
+        self.results_list = []
+        self.matches_count = 0
 
     def __str__(self):
         ...
@@ -23,31 +26,26 @@ class League:
     def __repr__(self):
         ...
 
-    @classmethod
-    def get_matches_count_input(cls) -> int:
-        result_count = int(input('Enter result count: '))
-        return result_count
+    def _get_matches_count(self) -> None:
+        matches_count = int(input('Enter result count: '))
+        self.matches_count = matches_count
 
-    @classmethod
-    def get_matches_input(cls, number: int) -> list[str]:
-        matches = input('enter the matches: ')
-        match_list = []
-        for i in range(0, number):
-            result = input()
-            match_list.append(result)
-        return match_list
+    def _get_matches(self) -> None:
+        counter = 0
+        for i in range(self.matches_count):
+            counter += 1
+            result = input(f'Enter match {counter}: ')
+            self.matches_list.append(result)
 
-    @classmethod
-    def get_results_input(cls, number: int) -> list[str]:
-        results = input('enter the results: ')
-        result_list = []
-        for i in range(0, number):
-            result = input()
-            result_list.append(result)
-        return result_list
+    def _get_results_input(self) -> None:
+        counter = 0
+        for match in self.matches_list:
+            counter += 1
+            result = input(f'Enter result of {match}: ')
+            self.results_list.append(result)
 
-    def get_result(self, match_list, result_list) -> dict:
-        zipped_list = (list(zip(match_list, result_list)))
+    def _process(self) -> dict:
+        zipped_list = (list(zip(self.matches_list, self.results_list)))
 
         for match, result in zipped_list:
             first_team = match.split('-')[0]
@@ -81,26 +79,24 @@ class League:
 
             return self.team_league
 
-    def sort_result(self, team_league: dict) -> list[Any]:
-        result = sorted(team_league.items(),
-                        key=lambda k: (-k[1]['points'], -k[1]['win'], k[0]))
-        return result
+    def _sort_league(self) -> None:
+        sorted(
+            self.team_league.items(),
+            key=lambda k: (-k[1]['points'], -k[1]['win'], k[0])
+        )
+
+    def _get_data(self) -> None:
+        self._get_matches_count()
+        self._get_matches()
+        self._get_results_input()
 
     def __call__(self, *args, **kwargs):
-        result_count = self.get_matches_count_input()
-        match_list = self.get_matches_input(result_count)
-        result_list = self.get_results_input(result_count)
-        team_league = self.get_result(match_list, result_list)
-        result = self.sort_result(team_league)
-        print(result)
+        self._get_data()
+        self._process()
+        self._sort_league()
+        pprint(self.team_league)
 
-
-league = League(team_league={
-            'spain': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
-            'iran': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
-            'portugal': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
-            'morocco': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
-        })
 
 if __name__ == '__main__':
+    league = League()
     league()
