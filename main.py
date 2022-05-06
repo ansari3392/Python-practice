@@ -27,7 +27,7 @@ class League:
         ...
 
     def _get_matches_count(self) -> None:
-        matches_count = int(input('Enter result count: '))
+        matches_count = int(input('Enter matches count: '))
         self.matches_count = matches_count
 
     def _get_matches(self) -> None:
