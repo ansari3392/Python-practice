@@ -77,7 +77,7 @@ class League:
                 self.team_league[first_team]['loses'] += 1
                 self.team_league[first_team]['goal difference'] -= goal_difference
 
-            return self.team_league
+        return self.team_league
 
     def _sort_league(self) -> None:
         sorted(
