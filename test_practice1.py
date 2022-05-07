@@ -1,8 +1,6 @@
 import unittest
 from unittest.mock import patch
-
 from practice1 import League
-
 
 def get_inputs():
     return [
@@ -15,7 +13,6 @@ def get_inputs():
         '3-2'
     ]
 
-
 def get_matches():
     return [
         'iran-spain',
@@ -23,14 +20,12 @@ def get_matches():
         'iran-morocco'
     ]
 
-
 def get_results():
     return [
         '1-1',
         '2-2',
         '1-2'
     ]
-
 
 class TestLeague(unittest.TestCase):
 
@@ -172,6 +167,7 @@ class TestLeague(unittest.TestCase):
         self.assertEqual(league.team_league['morocco']['goal difference'], -1)
         self.assertEqual(league.team_league['morocco']['points'], 0)
         league._sort_league()
+
 
 
 if __name__ == '__main__':
