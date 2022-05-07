@@ -45,6 +45,20 @@ class TestLeague(unittest.TestCase):
         league._get_matches()
         self.assertEqual(league.matches_list, ['iran-spain', 'iran-portugal', 'iran-morocco'])
 
+    def test_get_team_name(self):
+        league = League()
+        league.matches_list = ['iran-spain', 'iran-portugal']
+        self.assertEqual(len(league.team_name), 0)
+        league._get_team_name()
+        self.assertEqual(len(league.team_name), 3)
+
+    def test_create_team_league(self):
+        league = League()
+        league.team_name = ['iran', 'portugal']
+        self.assertEqual(len(league.team_league), 0)
+        league._create_team_league()
+        self.assertEqual(len(league.team_league), 2)
+
     @patch('builtins.input', side_effect=get_results())
     def test_get_results_input(self, mock_input):
         league = League()
@@ -57,13 +71,10 @@ class TestLeague(unittest.TestCase):
         league = League()
         league.matches_list = ['iran-spain', 'iran-portugal', 'iran-morocco']
         league.results_list = ['1-1', '2-2', '2-2']
-        self.assertEqual(league.team_league, {
-            'spain': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
-            'iran': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
-            'portugal': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
-            'morocco': {'win': 0, 'loses': 0, 'draws': 0, 'goal difference': 0, 'points': 0},
-        })
+        league.team_name = []
+        league.team_league = {}
         league._process()
+
         self.assertEqual(league.team_league['spain']['win'], 0)
         self.assertEqual(league.team_league['spain']['loses'], 0)
         self.assertEqual(league.team_league['spain']['draws'], 1)
@@ -118,6 +129,8 @@ class TestLeague(unittest.TestCase):
     @patch('builtins.input', side_effect=get_inputs())
     def test_call(self, mock_input):
         league = League()
+        league._get_team_name()
+        league._create_team_league()
         self.assertEqual(league.matches_count, 0)
         self.assertEqual(league.matches_list, [])
         self.assertEqual(league.results_list, [])
@@ -125,26 +138,6 @@ class TestLeague(unittest.TestCase):
         self.assertEqual(league.matches_count, 3)
         self.assertEqual(league.matches_list, ['iran-spain', 'iran-portugal', 'iran-morocco'])
         self.assertEqual(league.results_list, ['1-1', '2-1', '3-2'])
-        self.assertEqual(league.team_league['spain']['win'], 0)
-        self.assertEqual(league.team_league['spain']['loses'], 0)
-        self.assertEqual(league.team_league['spain']['draws'], 0)
-        self.assertEqual(league.team_league['spain']['goal difference'], 0)
-        self.assertEqual(league.team_league['spain']['points'], 0)
-        self.assertEqual(league.team_league['iran']['win'], 0)
-        self.assertEqual(league.team_league['iran']['loses'], 0)
-        self.assertEqual(league.team_league['iran']['draws'], 0)
-        self.assertEqual(league.team_league['iran']['goal difference'], 0)
-        self.assertEqual(league.team_league['iran']['points'], 0)
-        self.assertEqual(league.team_league['portugal']['win'], 0)
-        self.assertEqual(league.team_league['portugal']['loses'], 0)
-        self.assertEqual(league.team_league['portugal']['draws'], 0)
-        self.assertEqual(league.team_league['portugal']['goal difference'], 0)
-        self.assertEqual(league.team_league['portugal']['points'], 0)
-        self.assertEqual(league.team_league['morocco']['win'], 0)
-        self.assertEqual(league.team_league['morocco']['loses'], 0)
-        self.assertEqual(league.team_league['morocco']['draws'], 0)
-        self.assertEqual(league.team_league['morocco']['goal difference'], 0)
-        self.assertEqual(league.team_league['morocco']['points'], 0)
         league._process()
         self.assertEqual(league.team_league['spain']['win'], 0)
         self.assertEqual(league.team_league['spain']['loses'], 0)
@@ -167,8 +160,6 @@ class TestLeague(unittest.TestCase):
         self.assertEqual(league.team_league['morocco']['goal difference'], -1)
         self.assertEqual(league.team_league['morocco']['points'], 0)
         league._sort_league()
-
-
 
 if __name__ == '__main__':
     unittest.main()
