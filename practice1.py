@@ -5,7 +5,7 @@ Portugal wins:1 , loses:1 , draws:1 , goal difference:0 , points:4
 Morocco wins:1 , loses:2 , draws:0 , goal difference:-2 , points:3
 """
 from pprint import pprint
-from typing import List, Tuple
+from typing import List
 
 
 class League:
