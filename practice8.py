@@ -21,10 +21,11 @@ def runCommands(json_string):
                     }
 
     elif command_type == 'compute':
-        given_os_command = 'something else'
-        result = 'something else'
+        expression = a['expression']
+
+        result = eval(expression)
         data = {
-            "given_os_command": given_os_command,
+            "given_math_expression": expression,
             "result": result
         }
         ...
@@ -32,8 +33,12 @@ def runCommands(json_string):
 
 
 if __name__ == "__main__":
-    runCommands('{"command_type": "os", "command_name": "dir", "parameters": ["/home/me", "-h", "-l"]}')
+    runCommands('{"command_type": "compute", "expression": "((30+10)*5+1+1)"}')
 
 # echo Hello from the other side!
+# '{"command_type": "os", "command_name": "dir", "parameters": ["/home/me", "-h", "-l"]}'
+# '{"command_type": "compute", "expression": "((30+10)*5+1+1)"}'
+
+
 
 
