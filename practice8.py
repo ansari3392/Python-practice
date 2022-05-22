@@ -29,7 +29,7 @@ def runCommands(json_string):
             "result": result
         }
         ...
-    print(data)
+    print(json.dumps(data))
 
 
 if __name__ == "__main__":
