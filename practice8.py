@@ -7,13 +7,14 @@ def runCommands(json_string):
     if command_type == 'os':
         command_name = a['command_name']
         parameters = a['parameters']
+        given_os_command = command_name + '/'.join(parameters)
         with subprocess.Popen(
-                command_name,
+                given_os_command,
                 stdout=subprocess.PIPE,
                 universal_newlines=True,
                 shell=True
         ) as proc:
-            given_os_command = command_name + '/'.join(parameters)
+
             result = proc.stdout.read()
             data = {
                     "given_os_command": given_os_command,
@@ -29,11 +30,11 @@ def runCommands(json_string):
             "result": result
         }
         ...
-    print(json.dumps(data))
+    return json.dumps(data)
 
 
 if __name__ == "__main__":
-    runCommands('{"command_type": "compute", "expression": "((30+10)*5+1+1)"}')
+    runCommands('{"command_type": "os", "command_name": "dir", "parameters": ["/A", "s"]}')
 
 # echo Hello from the other side!
 # '{"command_type": "os", "command_name": "dir", "parameters": ["/home/me", "-h", "-l"]}'
