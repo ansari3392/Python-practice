@@ -8,7 +8,7 @@ def run_commands(json_string):
     if command_type == 'os':
         command_name = a['command_name']
         parameters = a['parameters']
-        given_os_command = command_name + '/'.join(parameters)
+        given_os_command = command_name + ' ' + ' '.join(parameters)
         with subprocess.Popen(
                 given_os_command,
                 stdout=subprocess.PIPE,
