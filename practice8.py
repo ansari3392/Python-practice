@@ -1,9 +1,12 @@
+import time
+
 from gevent import subprocess
 import json
 
-def runCommands(json_string):
+def run_commands(json_string):
     a = json.loads(json_string)
     command_type = a['command_type']
+    data = {}
     if command_type == 'os':
         command_name = a['command_name']
         parameters = a['parameters']
@@ -33,13 +36,8 @@ def runCommands(json_string):
     return data
 
 
-if __name__ == "__main__":
-    runCommands('{"command_type": "os", "command_name": "dir", "parameters": ["/A", "s"]}')
-
 # echo Hello from the other side!
 # '{"command_type": "os", "command_name": "dir", "parameters": ["/home/me", "-h", "-l"]}'
 # '{"command_type": "compute", "expression": "((30+10)*5+1+1)"}'
-
-
 
 

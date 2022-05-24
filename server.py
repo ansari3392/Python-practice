@@ -1,19 +1,18 @@
-import time
+from gevent import spawn
 
-from practice8 import runCommands
 import zmq
+
+from practice8 import run_commands
+
 context = zmq.Context()
-# Define the socket using the "Context"
 socket = context.socket(zmq.REP)
-socket.bind("tcp://127.0.0.1:8000")
+socket.connect("tcp://localhost:5559")
 
-while True:
-    msg = socket.recv_json()
-    time.sleep(1)
-    print(msg)
-    socket.send_json(runCommands(msg))
-
-
+def serve(socket):
+    while True:
+        message = socket.recv_json()
+        print("Received request: ", message)
+        socket.send_json(run_commands(message))
 
 
-
+server = spawn(serve, socket)

@@ -1,15 +1,16 @@
+from gevent import spawn
 import zmq
-
-data = input('enter your json file: ')
 
 context = zmq.Context()
 socket = context.socket(zmq.REQ)
-socket.connect("tcp://127.0.0.1:8000")
-socket.send_json(data)
+socket.connect("tcp://localhost:5559")
 
-msg_in = socket.recv().decode('utf-8')
-print(msg_in)
-
+#  Do 10 requests, waiting each time for a response
+def client():
+    for request in range(1, 10):
+        socket.send_json(input('enter your json file: '))
+        message = socket.recv_json()
+        print("Received reply ", request, "[", message, "]")
 
 
 
