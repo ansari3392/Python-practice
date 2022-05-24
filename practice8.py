@@ -1,5 +1,3 @@
-import time
-
 from gevent import subprocess
 import json
 

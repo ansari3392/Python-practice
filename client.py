@@ -1,8 +1,8 @@
 from gevent import spawn
-import zmq
+import zmq.green as zmq
 
 context = zmq.Context()
-socket = context.socket(zmq.REQ)
+socket = context.socket(3)
 socket.connect("tcp://localhost:5559")
 
 #  Do 10 requests, waiting each time for a response

@@ -1,11 +1,11 @@
 from gevent import spawn
 
-import zmq
+import zmq.green as zmq
 
 from practice8 import run_commands
 
 context = zmq.Context()
-socket = context.socket(zmq.REP)
+socket = context.socket(4)
 socket.connect("tcp://localhost:5559")
 
 def serve(socket):

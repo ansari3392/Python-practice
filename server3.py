@@ -1,5 +1,5 @@
 import gevent
-import zmq
+import zmq.green as zmq
 from practice8 import run_commands
 
 _BINDING = 'tcp://127.0.0.1:8000'
@@ -7,7 +7,7 @@ _BINDING = 'tcp://127.0.0.1:8000'
 context = zmq.Context()
 
 def server():
-    server_socket = context.socket(zmq.REP)
+    server_socket = context.socket(4)
     server_socket.bind(_BINDING)
 
     while True:
