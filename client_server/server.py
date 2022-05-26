@@ -1,9 +1,9 @@
 import json
-import time
-from multiprocessing import Process
-
+import gevent
 import zmq
 from gevent import subprocess
+from gevent.subprocess import Popen, PIPE
+
 _BINDING = 'tcp://127.0.0.1:8000'
 
 class Server:
@@ -28,7 +28,6 @@ class Server:
             "given_os_command": given_os_command,
             "result": result
         }
-        time.sleep(20)
         return data
 
     def os_compute(self, obj: dict) -> dict:
@@ -38,11 +37,9 @@ class Server:
             "given_math_expression": expression,
             "result": result
         }
-        time.sleep(20)
         return data
 
-    def get_result(self, json_string: str) -> dict:
-        obj = json.loads(json_string)
+    def get_result(self, obj: dict) -> dict:
         command_type = obj['command_type']
         if command_type == "os":
             return self.os_result(obj)
@@ -54,15 +51,20 @@ class Server:
         # print(type(received_message))
         print("Received:\n %s" % received_message)
         self.server_socket.send_json(self.get_result(received_message))
-        # self.server_socket.close()
 
     def __call__(self, *args, **kwargs):
-        while True:
-            self.run_server()
+        self.run_server()
+        gevent.sleep(2)
 
 
 if __name__ == "__main__":
     server = Server()
-    p = Process(target=server,)
-    p.start()
-    p.join()
+    while True:
+        g = gevent.spawn(server)
+        sub = Popen(['sleep 1; uname'], stdout=PIPE, shell=True)
+        out, err = sub.communicate()
+        print(out.rstrip())
+        g.kill()
+
+
+

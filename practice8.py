@@ -31,6 +31,7 @@ def run_commands(json_string):
             "given_math_expression": expression,
             "result": result
         }
+
     return data
 
 
@@ -38,4 +39,6 @@ def run_commands(json_string):
 # '{"command_type": "os", "command_name": "dir", "parameters": ["/home/me", "-h", "-l"]}'
 # '{"command_type": "compute", "expression": "((30+10)*5+1+1)"}'
 
-
+def something(hi):
+    time.sleep(10)
+    return hi
