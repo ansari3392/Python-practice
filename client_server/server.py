@@ -3,15 +3,22 @@ import gevent
 import zmq
 from gevent import subprocess
 from gevent.subprocess import Popen, PIPE
+import sys
+import argparse
 
 _BINDING = 'tcp://127.0.0.1:8000'
+parser = argparse.ArgumentParser(
+    description='Process some integers',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+
 
 class Server:
     def __init__(self):
         self.context = zmq.Context()
         self.server_socket = self.context.socket(zmq.REP)
         self.server_socket.bind(_BINDING)
-        print('Running server on: ', _BINDING)
+        # print('Running server on: ', _BINDING)
 
     def os_result(self, obj: dict) -> dict:
         command_name = obj['command_name']
@@ -47,24 +54,32 @@ class Server:
             return self.os_compute(obj)
 
     def run_server(self) -> None:
-        received_message = self.server_socket.recv_json()
-        # print(type(received_message))
-        print("Received:\n %s" % received_message)
-        self.server_socket.send_json(self.get_result(received_message))
-
-    def __call__(self, *args, **kwargs):
-        self.run_server()
-        gevent.sleep(2)
+        while True:
+            received_message = self.server_socket.recv_json()
+            print('received_message')
+            # print("Received:\n %s" % received_message)
+            result = self.get_result(received_message)
+            self.server_socket.send_json(result)
+            print('message sent, sleeping for 100s')
+            sub = Popen(['sleep 100; uname'], stdout=PIPE, shell=True)
+            sub.communicate()
+            print('sleep ended')
 
 
 if __name__ == "__main__":
+    parser.add_argument(
+        "-c",
+        "--concurrency",
+        help="run server in concurrency mode",
+        default=1,
+    )
+    args = parser.parse_args()
+    config = vars(args)
+    try:
+        concurrency = int(config['concurrency'])
+    except ValueError:
+        print('Invalid concurrency value')
+        sys.exit(1)
     server = Server()
-    while True:
-        g = gevent.spawn(server)
-        sub = Popen(['sleep 1; uname'], stdout=PIPE, shell=True)
-        out, err = sub.communicate()
-        print(out.rstrip())
-        g.kill()
-
-
-
+    greens = [gevent.spawn(server.run_server) for i in range(concurrency)]
+    gevent.joinall(greens)
