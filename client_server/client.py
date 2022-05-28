@@ -60,11 +60,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
     config = vars(args)
     file_path = config['file']
-    try:
-        file_exists = exists(file_path)
+    if file_path:
+        try:
+            file_exists = exists(file_path)
 
-        client = Client(file_path)
-        client.run()
-    except FileNotFoundError:
-        logging.error("File not found")
+            client = Client(file_path)
+            client.run()
+        except FileNotFoundError:
+            logging.error("File not found")
+            sys.exit(1)
+    else:
+        logging.error("File path is empty")
         sys.exit(1)
+
+
