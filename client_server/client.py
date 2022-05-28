@@ -1,6 +1,7 @@
 import argparse
 import json
 import logging
+import os
 import sys
 from os.path import exists
 
@@ -25,27 +26,19 @@ class Client:
 
     def read_json_file(self) -> dict:
         with open(self.path, 'r') as f:
-            if not f.readable():
-                logging.error("File %s is not readable", self.path)
-                sys.exit(1)
-            elif f.read() == '':
-                logging.error("File %s is empty", self.path)
-                sys.exit(1)
-
             data = json.load(f)
 
-            if data['command_type'] not in ['os', 'compute']:
-                logging.error("Command type is not valid")
+        if data['command_type'] not in ['os', 'compute']:
+            logging.error("Command type is not valid")
+            sys.exit(1)
+        elif data['command_type'] == 'os':
+            if not data['command_name'] or not data['parameters']:
+                logging.error("Command name or parameters are empty")
                 sys.exit(1)
-
-            elif data['command_type'] == 'os':
-                if not data['command_name'] or not data['parameters']:
-                    logging.error("Command name or parameters are empty")
-                    sys.exit(1)
-            elif data['command_type'] == 'compute':
-                if not data['expression']:
-                    logging.error("Expression is empty")
-                    sys.exit(1)
+        elif data['command_type'] == 'compute':
+            if not data['expression']:
+                logging.error("Expression is empty")
+                sys.exit(1)
         return data
 
     def run(self) -> None:

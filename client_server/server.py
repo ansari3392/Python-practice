@@ -70,7 +70,6 @@ class Server:
 
 if __name__ == "__main__":
     parser.add_argument(
-        "-c",
         "--concurrency",
         help="run server in concurrency mode",
         default=1,
