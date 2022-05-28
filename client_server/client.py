@@ -1,7 +1,6 @@
 import argparse
 import json
 import logging
-import os
 import sys
 from os.path import exists
 
@@ -26,7 +25,11 @@ class Client:
 
     def read_json_file(self) -> dict:
         with open(self.path, 'r') as f:
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except json.decoder.JSONDecodeError:
+                logging.error("File is not valid JSON")
+                sys.exit(1)
 
         if data['command_type'] not in ['os', 'compute']:
             logging.error("Command type is not valid")
