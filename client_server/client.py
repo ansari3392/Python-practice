@@ -3,7 +3,6 @@ import json
 import logging
 import sys
 from os.path import exists
-
 import zmq
 
 _BINDING = 'tcp://127.0.0.1:8000'

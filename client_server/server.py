@@ -1,14 +1,13 @@
 import argparse
 import logging
 import sys
-
 import gevent
 import zmq
 from gevent import subprocess
 
 _BINDING = 'tcp://127.0.0.1:8000'
 parser = argparse.ArgumentParser(
-    description='Process some integers',
+    description='Process concurrency count',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s')
@@ -71,7 +70,7 @@ class Server:
 if __name__ == "__main__":
     parser.add_argument(
         "--concurrency",
-        help="run server in concurrency mode",
+        help="run server with concurrency count",
         default=1,
     )
     args = parser.parse_args()
