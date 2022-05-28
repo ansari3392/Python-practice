@@ -56,7 +56,7 @@ class Server:
         if command_type == "compute":
             return self.os_compute(obj)
 
-    def run_server(self) -> None:
+    def run(self) -> None:
         while True:
             received_message = self.socket_server.recv_json()
             logging.info("Received message: %s", received_message)
@@ -81,5 +81,5 @@ if __name__ == "__main__":
         logging.error("Concurrency must be an integer")
         sys.exit(1)
     server = Server()
-    greens = [gevent.spawn(server.run_server) for i in range(concurrency)]
+    greens = [gevent.spawn(server.run) for i in range(concurrency)]
     gevent.joinall(greens)
