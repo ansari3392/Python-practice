@@ -23,7 +23,7 @@ class Server:
 
     @staticmethod
     def os_result(obj: dict) -> dict:
-        command_name = obj['command_name']
+        command_name = obj.get('command_name')
         parameters = obj.get('parameters')
         given_os_command = command_name + ' ' + ' '.join(parameters)
         with subprocess.Popen(
@@ -41,7 +41,7 @@ class Server:
 
     @staticmethod
     def os_compute(obj: dict) -> dict:
-        expression = obj['expression']
+        expression = obj.get('expression')
         result = eval(expression)
         data = {
             "given_math_expression": expression,
@@ -50,7 +50,7 @@ class Server:
         return data
 
     def get_result(self, obj: dict) -> dict:
-        command_type = obj['command_type']
+        command_type = obj.get('command_type')
         if command_type == "os":
             return self.os_result(obj)
         if command_type == "compute":

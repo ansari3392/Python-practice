@@ -30,15 +30,15 @@ class Client:
                 logging.error("File is not valid JSON")
                 sys.exit(1)
 
-        if data['command_type'] not in ['os', 'compute']:
+        if data.get('command_type') not in ['os', 'compute']:
             logging.error("Command type is not valid")
             sys.exit(1)
         elif data['command_type'] == 'os':
-            if not data['command_name'] or not data['parameters']:
+            if not data.get('command_name') or not data.get('parameters'):
                 logging.error("Command name or parameters are empty")
                 sys.exit(1)
         elif data['command_type'] == 'compute':
-            if not data['expression']:
+            if not data.get('expression'):
                 logging.error("Expression is empty")
                 sys.exit(1)
         return data
