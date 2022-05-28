@@ -1,28 +1,31 @@
-import json
+import argparse
+import logging
+import sys
+
 import gevent
 import zmq
 from gevent import subprocess
-from gevent.subprocess import Popen, PIPE
-import sys
-import argparse
 
 _BINDING = 'tcp://127.0.0.1:8000'
 parser = argparse.ArgumentParser(
     description='Process some integers',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
+logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s')
 
 
 class Server:
     def __init__(self):
+        self.logger = logging.getLogger('SERVER')
         self.context = zmq.Context()
-        self.server_socket = self.context.socket(zmq.REP)
-        self.server_socket.bind(_BINDING)
-        # print('Running server on: ', _BINDING)
+        self.socket_server = self.context.socket(zmq.REP)
+        self.socket_server.bind(_BINDING)
+        logging.info("Server started")
 
-    def os_result(self, obj: dict) -> dict:
+    @staticmethod
+    def os_result(obj: dict) -> dict:
         command_name = obj['command_name']
-        parameters = obj['parameters']
+        parameters = obj.get('parameters')
         given_os_command = command_name + ' ' + ' '.join(parameters)
         with subprocess.Popen(
                 given_os_command,
@@ -37,7 +40,8 @@ class Server:
         }
         return data
 
-    def os_compute(self, obj: dict) -> dict:
+    @staticmethod
+    def os_compute(obj: dict) -> dict:
         expression = obj['expression']
         result = eval(expression)
         data = {
@@ -55,15 +59,13 @@ class Server:
 
     def run_server(self) -> None:
         while True:
-            received_message = self.server_socket.recv_json()
-            print('received_message')
-            # print("Received:\n %s" % received_message)
+            received_message = self.socket_server.recv_json()
+            logging.info("Received message: %s", received_message)
             result = self.get_result(received_message)
-            self.server_socket.send_json(result)
-            print('message sent, sleeping for 100s')
-            sub = Popen(['sleep 100; uname'], stdout=PIPE, shell=True)
-            sub.communicate()
-            print('sleep ended')
+            self.socket_server.send_json(result)
+            logging.info("Sent result: %s", result)
+            # sub = Popen(['sleep 100; uname'], stdout=PIPE, shell=True)
+            # sub.communicate()
 
 
 if __name__ == "__main__":
@@ -78,7 +80,7 @@ if __name__ == "__main__":
     try:
         concurrency = int(config['concurrency'])
     except ValueError:
-        print('Invalid concurrency value')
+        logging.error("Concurrency must be an integer")
         sys.exit(1)
     server = Server()
     greens = [gevent.spawn(server.run_server) for i in range(concurrency)]
