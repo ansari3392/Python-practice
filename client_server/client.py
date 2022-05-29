@@ -5,6 +5,8 @@ import sys
 from os.path import exists
 import zmq
 
+from _json_validators import JsonValidator
+
 _BINDING = 'tcp://127.0.0.1:8000'
 parser = argparse.ArgumentParser(
     description='Process file paths',
@@ -33,21 +35,21 @@ class Client:
         if data.get('command_type') not in ['os', 'compute']:
             logging.error("Command type is not valid")
             sys.exit(1)
-        elif data['command_type'] == 'os':
-            if not data.get('command_name'):
-                logging.error("Command name is empty")
-                sys.exit(1)
-        elif data['command_type'] == 'compute':
-            if not data.get('expression'):
-                logging.error("Expression is empty")
-                sys.exit(1)
+        for Validator in JsonValidator.__subclasses__():
+            if Validator.meet_condition(data):
+                try:
+                    Validator.validate(data)
+                except ValueError as e:
+                    logging.error(e)
+                    sys.exit(1)
+                break
         return data
 
     def run(self) -> None:
         message = self.read_json_file()
         self.socket_client.send_json(message)
         received_message = self.socket_client.recv_json()
-        result = json.dumps(received_message, indent=4).replace('-', ' ')
+        result = json.dumps(received_message, indent=4)
         logging.info("Received message: %s", result)
         self.socket_client.close()
 
@@ -72,5 +74,3 @@ if __name__ == "__main__":
     else:
         logging.error("File path is empty")
         sys.exit(1)
-
-

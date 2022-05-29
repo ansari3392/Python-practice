@@ -32,7 +32,7 @@ class Server:
                 universal_newlines=True,
                 shell=True
         ) as proc:
-            result = proc.stdout.read().replace('\n', '')
+            result = proc.stdout.read().replace('\n', ' ')
         data = {
             "given_os_command": given_os_command,
             "result": result
