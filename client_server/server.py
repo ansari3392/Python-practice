@@ -32,7 +32,7 @@ class Server:
                 universal_newlines=True,
                 shell=True
         ) as proc:
-            result = proc.stdout.read()
+            result = proc.stdout.read().replace('\n', '')
         data = {
             "given_os_command": given_os_command,
             "result": result
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--concurrency",
         help="run server with concurrency count",
-        default=1,
+        default=10,
     )
     args = parser.parse_args()
     config = vars(args)
@@ -83,3 +83,5 @@ if __name__ == "__main__":
     server = Server()
     greens = [gevent.spawn(server.run) for i in range(concurrency)]
     gevent.joinall(greens)
+
+

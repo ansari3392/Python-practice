@@ -34,8 +34,8 @@ class Client:
             logging.error("Command type is not valid")
             sys.exit(1)
         elif data['command_type'] == 'os':
-            if not data.get('command_name') or not data.get('parameters'):
-                logging.error("Command name or parameters are empty")
+            if not data.get('command_name'):
+                logging.error("Command name is empty")
                 sys.exit(1)
         elif data['command_type'] == 'compute':
             if not data.get('expression'):
@@ -47,7 +47,8 @@ class Client:
         message = self.read_json_file()
         self.socket_client.send_json(message)
         received_message = self.socket_client.recv_json()
-        logging.info("Received message: %s", received_message)
+        result = json.dumps(received_message, indent=4).replace('-', ' ')
+        logging.info("Received message: %s", result)
         self.socket_client.close()
 
 
