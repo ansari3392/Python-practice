@@ -3,11 +3,13 @@ import json
 import logging
 import sys
 from os.path import exists
+from subprocess import Popen, PIPE
+
 import zmq
 
 from _json_validators import JsonValidator
 
-_BINDING = 'tcp://127.0.0.1:5560'
+_BINDING = 'tcp://127.0.0.1:5555'
 parser = argparse.ArgumentParser(
     description='Process file paths',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -22,8 +24,6 @@ class Client:
         self.context = zmq.Context()
         self.socket_client = self.context.socket(zmq.REQ)
         self.socket_client.connect(_BINDING)
-        self.poller = zmq.Poller()
-        self.poller.register(self.socket_client, zmq.POLLIN)
         logging.info("Client connected to server")
 
     def read_json_file(self) -> dict:
@@ -67,7 +67,6 @@ if __name__ == "__main__":
     if file_path:
         try:
             file_exists = exists(file_path)
-
             client = Client(file_path)
             client.run()
         except FileNotFoundError:

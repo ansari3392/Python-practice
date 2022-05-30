@@ -1,11 +1,13 @@
 import argparse
 import logging
 import sys
+import time
+
 import gevent
 import zmq
 from gevent import subprocess
 
-_BINDING = 'tcp://127.0.0.1:5560'
+_BINDING = 'tcp://127.0.0.1:5555'
 parser = argparse.ArgumentParser(
     description='Process concurrency count',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -61,6 +63,8 @@ class Server:
             received_message = self.socket_server.recv_json()
             logging.info("Received message: %s", received_message)
             result = self.get_result(received_message)
+            gevent.subprocess.Popen('python server.py', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            time.sleep(10)
             self.socket_server.send_json(result)
             logging.info("Sent result: %s", result)
 
@@ -79,11 +83,10 @@ if __name__ == "__main__":
         logging.error("Concurrency must be an integer")
         sys.exit(1)
     server = Server()
-    p = subprocess(target=server.run)
-    p.start()
-    p.join()
-    server = Server()
-    greens = [gevent.spawn(server.run) for i in range(concurrency)]
-    gevent.joinall(greens)
+    green = gevent.spawn(server.run)
+    green.join()
+
+
+
 
 
