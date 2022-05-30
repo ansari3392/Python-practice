@@ -1,13 +1,19 @@
+from signal import SIGINT, SIGKILL
 import argparse
 import json
 import logging
+import shlex
 import sys
+
 from os.path import exists
+from subprocess import Popen, PIPE
+from time import sleep
+
 import zmq
 
 from _json_validators import JsonValidator
 
-_BINDING = 'tcp://127.0.0.1:5560'
+_BINDING = 'tcp://127.0.0.1:8000'
 parser = argparse.ArgumentParser(
     description='Process file paths',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -15,16 +21,16 @@ parser = argparse.ArgumentParser(
 logging.basicConfig(level=logging.INFO, format='%(asctime)s :: %(levelname)s :: %(message)s')
 
 
+time_to_sleep = 0.15
+
 class Client:
     def __init__(self, path):
+
+        self.server = None
         self.logger = logging.getLogger('CLIENT')
         self.path = path
         self.context = zmq.Context()
-        self.socket_client = self.context.socket(zmq.REQ)
-        self.socket_client.connect(_BINDING)
-        self.poller = zmq.Poller()
-        self.poller.register(self.socket_client, zmq.POLLIN)
-        logging.info("Client connected to server")
+        self.start_server_process()
 
     def read_json_file(self) -> dict:
         with open(self.path, 'r') as f:
@@ -47,13 +53,33 @@ class Client:
                 break
         return data
 
-    def run(self) -> None:
+    def start_server_process(self):
+        self.server = Popen('python server.py', shell=True, stdout=PIPE)
+
+        for line in self.server.stdout.readline():
+            if 'main loop' in line:
+                break
+
+    def end_server_process(self):
+        self.server.send_signal(SIGINT)
+        sleep(time_to_sleep)
+        self.server.send_signal(SIGKILL)
+        self.server.wait()
+
+    def run(self):
+        socket_client = self.context.socket(zmq.REQ)
+        socket_client.connect(_BINDING)
         message = self.read_json_file()
-        self.socket_client.send_json(message)
-        received_message = self.socket_client.recv_json()
-        result = json.dumps(received_message, indent=4)
-        logging.info("Received message: %s", result)
-        self.socket_client.close()
+        socket_client.send_json(message)
+        sleep(time_to_sleep)
+        try:
+            received_message = socket_client.recv_json(zmq.NOBLOCK)
+            result = json.dumps(received_message, indent=4)
+            print(result)
+            logging.info("Received message: %s", result)
+
+        except zmq.ZMQError:
+            pass
 
 
 if __name__ == "__main__":
@@ -67,12 +93,14 @@ if __name__ == "__main__":
     if file_path:
         try:
             file_exists = exists(file_path)
-
             client = Client(file_path)
             client.run()
+            client.context.destroy()
+            client.end_server_process()
         except FileNotFoundError:
             logging.error("File not found")
             sys.exit(1)
     else:
         logging.error("File path is empty")
         sys.exit(1)
+
